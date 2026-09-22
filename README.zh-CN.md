@@ -106,7 +106,15 @@ git clone https://github.com/poiuyjie/jev_project_context ~/.agents/skills/proje
 
 ### 可选 Jev 层
 
-设置 `TYPESAFE_API_KEY` 后（在 [console.typesafe.ai](https://console.typesafe.ai/keys) 申请；参见 [TypeSafe/Jev 文档](https://docs.typesafe.ai)），两个脚本被激活：
+配置 `TYPESAFE_API_KEY` 后两个脚本被激活，最简单的方式是 `.env` 文件：
+
+```bash
+cp .env.example .env   # 然后把 console.typesafe.ai/keys 申请的 key 粘贴进去
+```
+
+`jev_client.py` 会依次从当前目录、`scripts/` 目录、skill 根目录加载 `.env`——零依赖，且真实环境变量始终优先。`.env` 已被 git 忽略：切勿提交真实 key。
+
+key 就位后（参见 [TypeSafe/Jev 文档](https://docs.typesafe.ai)）：
 
 - `jev_context.py` — `start` 的任务条件化上下文分诊：一次批量决策调用，把实验记录、知识条目、协议、journal 按当前任务排序，输出字符预算内的 `LOAD / SKIP` 清单。相关性永远不掩盖过期：`SURFACE` 有效性警报（invalidated/superseded）即使对被跳过的条目也会输出。
 - `jev_doctor.py` — `doctor` / `claim-audit` / `synthesize` 的语义预筛：溯源可恢复性、headline 与关键表一致性、解释混入观察、按受控词表做 claim 支持度分类。

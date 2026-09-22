@@ -106,7 +106,15 @@ Daily use: *"continue this project"* (start), *"record the results of E2026-0922
 
 ### Optional Jev layers
 
-Two scripts become active when `TYPESAFE_API_KEY` is set (get a key at [console.typesafe.ai](https://console.typesafe.ai/keys); see [TypeSafe/Jev docs](https://docs.typesafe.ai)):
+Two scripts become active once `TYPESAFE_API_KEY` is configured. The simplest way is a `.env` file:
+
+```bash
+cp .env.example .env   # then paste your key from https://console.typesafe.ai/keys
+```
+
+`jev_client.py` loads `.env` from the current directory, the `scripts/` directory, or the skill root — no dependencies, and real environment variables always take precedence. `.env` is git-ignored: never commit a real key.
+
+With the key in place (see [TypeSafe/Jev docs](https://docs.typesafe.ai)):
 
 - `jev_context.py` — task-conditioned context triage for `start`: ranks experiment records, knowledge entries, protocols, and journals against the current task in one batched decision call, and prints a `LOAD / SKIP` manifest under a character budget. Relevance never hides staleness: `SURFACE` validity warnings (invalidated/superseded evidence) are printed even for skipped items.
 - `jev_doctor.py` — semantic pre-screening for `doctor` / `claim-audit` / `synthesize`: provenance recoverability, headline-vs-table consistency, interpretation leaking into observations, and claim-support classification over the controlled vocabulary.

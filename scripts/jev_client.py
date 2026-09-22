@@ -25,11 +25,13 @@ class JevError(RuntimeError):
 def _load_dotenv() -> None:
     """Load TYPESAFE_* settings from .env without importing python-dotenv.
 
-    Search order: the current working directory, then this script's
-    directory. Real environment variables win over .env values. .env files
-    hold secrets and must stay untracked (.gitignore ships with one entry).
+    Search order: the current working directory, this script's directory,
+    then the skill root (the script directory's parent). Real environment
+    variables win over .env values. .env files hold secrets and must stay
+    untracked (.gitignore ships with one entry).
     """
-    for base in (Path.cwd(), Path(__file__).resolve().parent):
+    script_dir = Path(__file__).resolve().parent
+    for base in (Path.cwd(), script_dir, script_dir.parent):
         env_file = base / ".env"
         if not env_file.is_file():
             continue

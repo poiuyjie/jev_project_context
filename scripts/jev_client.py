@@ -12,6 +12,7 @@ import json
 import os
 import urllib.error
 import urllib.request
+from pathlib import Path
 
 DEFAULT_URL = "https://api.typesafe.ai/v1/systemone"
 DEFAULT_MODEL = "jev-latest"
@@ -19,6 +20,33 @@ DEFAULT_MODEL = "jev-latest"
 
 class JevError(RuntimeError):
     """Any failure to obtain a Jev decision; callers should degrade gracefully."""
+
+
+def _load_dotenv() -> None:
+    """Load TYPESAFE_* settings from .env without importing python-dotenv.
+
+    Search order: the current working directory, then this script's
+    directory. Real environment variables win over .env values. .env files
+    hold secrets and must stay untracked (.gitignore ships with one entry).
+    """
+    for base in (Path.cwd(), Path(__file__).resolve().parent):
+        env_file = base / ".env"
+        if not env_file.is_file():
+            continue
+        try:
+            lines = env_file.read_text(encoding="utf-8").splitlines()
+        except OSError:
+            continue
+        for line in lines:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            name, _, value = line.partition("=")
+            os.environ.setdefault(name.strip(), value.strip().strip("'\""))
+        break
+
+
+_load_dotenv()
 
 
 def api_key() -> str | None:

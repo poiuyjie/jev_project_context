@@ -235,8 +235,11 @@ def run_claims(root: Path, report: Report, args) -> int:
         questions[f"{claim_id}_support"] = choice(
             f"Classify the support status of claim {claim_id} as worded", CLAIM_SUPPORT
         )
+        # Positive polarity like every other question: a low probability
+        # (causal wording without causal identification) is the suspect case.
         questions[f"{claim_id}_causal"] = noul(
-            f"Claim {claim_id} uses causal language (causes, because, due to) without causal identification"
+            f"Claim {claim_id} avoids causal language (causes, because, due to) "
+            "unless causal identification is present"
         )
     target = str(claims_path.relative_to(root))
     if args.dry_run:

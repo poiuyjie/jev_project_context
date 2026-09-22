@@ -10,20 +10,20 @@ Research projects rarely die because results are lost — they die because their
 
 ```mermaid
 flowchart TB
-    %%{init: {"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
-    init(["✦ init — adopt once"]):::seed --> frame
+    %%{init: {"flowchart":{"defaultRenderer":"elk"},"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
 
-    subgraph loop["🔬 Research loop"]
+    init(["✦ init — adopt once"]):::seed --> startS
+
+    subgraph loop["🔬 Per-session loop"]
+        startS(["▶ start — load task-conditioned context"]):::seed
         frame["🎯 frame<br/>question · hypotheses · falsifiers"]:::op
         plan["📋 plan<br/>stable experiment ID · frozen protocol"]:::op
         record["🧾 record<br/>provenance gate · evidence before interpretation"]:::op
         endS(["🏁 End — journal handoff"]):::op
-        frame --> plan --> record --> endS
+        startS --> frame --> plan --> record --> endS
+        endS -. next session .-> startS
     end
 
-    startS(["▶ start — resume next session"]):::seed
-    endS --> startS
-    startS -->|new session| frame
     endS --> syn["📦 synthesize<br/>promote traceable observations to facts"]:::read
 
     subgraph guards["⚠️ Available anytime"]
@@ -32,7 +32,6 @@ flowchart TB
     end
 
     endS -. bug found .-> correct
-    correct -.-> record
     endS == close-out ==> doctor
 
     classDef seed fill:#EEF2FF,stroke:#6366F1,stroke-width:2px,color:#312E81;
@@ -47,15 +46,14 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    %%{init: {"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
+    %%{init: {"flowchart":{"defaultRenderer":"elk"},"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
     subgraph audit["🩺 doctor — audit funnel"]
         direction LR
         l1["doctor.py<br/>local regex · free · CI exit code"]:::c1
         l2["jev_doctor.py<br/>semantic pre-screen · optional Jev"]:::c2
         l3(["🧠 agent / human review<br/>the only authority"]):::c3
         l1 -->|structural findings| l2
-        l2 -->|low confidence| l3
-        l2 -->|high-confidence warning| l3
+        l2 -->|flagged findings| l3
     end
 
     subgraph triage["🧭 start — context triage · every session"]

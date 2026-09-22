@@ -10,20 +10,20 @@
 
 ```mermaid
 flowchart TB
-    %%{init: {"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
-    init(["✦ init · 一次性接入"]):::seed --> frame
+    %%{init: {"flowchart":{"defaultRenderer":"elk"},"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
 
-    subgraph loop["🔬 科研循环"]
+    init(["✦ init · 一次性接入"]):::seed --> startS
+
+    subgraph loop["🔬 每会话循环"]
+        startS(["▶ start · 任务条件化装载上下文"]):::seed
         frame["🎯 frame<br/>研究问题 · 假设 · 证伪条件"]:::op
         plan["📋 plan<br/>稳定实验 ID · 冻结协议"]:::op
         record["🧾 record<br/>溯源门 · 先证据后解释"]:::op
         endS(["🏁 End · journal 交接"]):::op
-        frame --> plan --> record --> endS
+        startS --> frame --> plan --> record --> endS
+        endS -. 下一会话 .-> startS
     end
 
-    startS(["▶ start · 下次会话恢复"]):::seed
-    endS --> startS
-    startS -->|新会话| frame
     endS --> syn["📦 synthesize<br/>晋升可追溯观察为 facts"]:::read
 
     subgraph guards["⚠️ 随叫随到"]
@@ -32,7 +32,6 @@ flowchart TB
     end
 
     endS -. 发现 bug .-> correct
-    correct -.-> record
     endS == 收尾必跑 ==> doctor
 
     classDef seed fill:#EEF2FF,stroke:#6366F1,stroke-width:2px,color:#312E81;
@@ -47,15 +46,14 @@ flowchart TB
 
 ```mermaid
 flowchart TB
-    %%{init: {"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
+    %%{init: {"flowchart":{"defaultRenderer":"elk"},"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
     subgraph audit["🩺 doctor · 审计漏斗"]
         direction LR
         l1["doctor.py<br/>本地正则 · 免费 · CI 退出码"]:::c1
         l2["jev_doctor.py<br/>语义预筛 · 可选 Jev"]:::c2
         l3(["🧠 智能体 / 人工复核<br/>唯一裁决者"]):::c3
         l1 -->|结构问题| l2
-        l2 -->|低置信度| l3
-        l2 -->|高置信度警告| l3
+        l2 -->|标记项| l3
     end
 
     subgraph triage["🧭 start · 上下文分诊 · 每次会话"]

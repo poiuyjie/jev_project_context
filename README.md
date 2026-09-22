@@ -43,30 +43,29 @@ flowchart TB
 ### How Jev audits your memory
 
 ```mermaid
-flowchart LR
+flowchart TB
     %%{init: {"flowchart":{"defaultRenderer":"elk"},"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
 
-    src["📄 memory under audit<br/>experiment records · CURRENT.md · claims"]:::c1
+    src["📄 memory under audit<br/>records · CURRENT.md · claims"]:::c1 --> L1
 
     subgraph L1["1️⃣ doctor.py — local regex · free"]
-        r1["structural checks<br/>missing sections · stale dates ·<br/>empty provenance fields"]:::c2
+        r1["structural checks<br/>missing sections · stale · empty provenance"]:::c2
     end
 
-    subgraph L2["2️⃣ jev_doctor.py — one batched Jev call"]
-        direction TB
-        q1["Noul — provenance recoverable?"]:::c3
-        q2["Noul — headline matches key table?"]:::c3
-        q3["Noul — observations free of interpretation?"]:::c3
-        q4["Choice — claim support status"]:::c3
-    end
-
-    src --> L1
     L1 --> L2
 
+    subgraph L2["2️⃣ jev_doctor.py — one batched Jev call"]
+        direction LR
+        q1["Noul<br/>provenance<br/>recoverable?"]:::c3
+        q2["Noul<br/>headline matches<br/>key table?"]:::c3
+        q3["Noul<br/>observations free of<br/>interpretation?"]:::c3
+        q4["Choice<br/>claim support<br/>status"]:::c3
+    end
+
     L2 --> gate{"confidence gate"}
-    gate -->|"passes · p ≥ 0.5"| ok(["✅ silent pass"]):::okc
-    gate -->|"finding · high confidence"| warn(["⚠️ SEMANTIC-WARNING<br/>confirm before acting"]):::warnc
-    gate -->|"confidence < 0.5"| rev(["🔍 SEMANTIC-REVIEW<br/>manual review queue"]):::revc
+    gate -->|p ≥ 0.5| ok(["✅ silent pass"]):::okc
+    gate -->|finding · high conf| warn(["⚠️ warning<br/>confirm before acting"]):::warnc
+    gate -->|low conf| rev(["🔍 review queue<br/>confidence < 0.5"]):::revc
 
     classDef c1 fill:#EEF2FF,stroke:#6366F1,stroke-width:1.5px,color:#312E81;
     classDef c2 fill:#FFFFFF,stroke:#6366F1,stroke-width:1.5px,color:#1E1B4B;

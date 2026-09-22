@@ -1,6 +1,6 @@
 ---
 name: project-context-v2
-description: Manage evidence-first memory across the full lifecycle of long-term scientific research and research engineering. Use when initializing a research project or adopting the memory system into an existing one, resuming work across AI sessions, preparing evidence-grounded context for manuscript writing, formulating questions and hypotheses, planning or registering experiments, recording running/completed/failed experiments, preserving raw key tables and provenance, correcting invalid analyses, promoting findings into knowledge, auditing paper claims, handing off work, or diagnosing documentation drift without losing reproducibility.
+description: Manage evidence-first memory across the full lifecycle of long-term scientific research and research engineering. Use when initializing a research project or adopting the memory system into an existing one, resuming work across AI sessions, formulating questions and hypotheses, planning or registering experiments, recording running/completed/failed experiments, preserving raw key tables and provenance, correcting invalid analyses, promoting findings into knowledge, auditing claim support, handing off work, or diagnosing documentation drift without losing reproducibility.
 ---
 
 # Project Context V2
@@ -39,7 +39,7 @@ project/
     ├── research/
     │   ├── questions.md        # research questions and success criteria
     │   ├── hypotheses.md       # hypotheses and falsification conditions
-    │   └── claims.md           # paper claims mapped to evidence and threats
+    │   └── claims.md           # claims mapped to evidence and threats
     ├── knowledge/
     │   ├── facts.md            # durable observations with evidence links
     │   ├── bugs.md             # validity-impacting and implementation bugs
@@ -48,21 +48,11 @@ project/
     ├── experiments/            # one evidence record per stable experiment ID
     ├── journal/                # chronological session narrative and handoffs
     └── archive/                # optional retired snapshots; never the current truth
-├── manuscripts/               # optional paper workspaces; projections over project evidence
-│   └── <paper-id>/
-│       ├── manuscript.yaml     # paper identity, source entry, authority links
-│       ├── context/            # paper-state, claims, numbers, limitations, artifact index
-│       ├── src/                # LaTeX source after migration
-│       ├── figures/            # source/final assets plus manifest
-│       ├── tables/             # source/generated tables plus manifest
-│       ├── supplement/         # supplementary source and assets
-│       └── dist/               # generated submission releases
 ```
 
 `CURRENT.md` is a projection, not a second history. Keep only the current question, authoritative protocol, selected models/results, running work, blockers, next actions, and invalidated warnings needed to resume safely.
 
 Read [references/schemas.md](references/schemas.md) before creating or materially changing these files. Read [references/lifecycle.md](references/lifecycle.md) when planning, recording, correcting, synthesizing, or writing research.
-Read [references/manuscript.md](references/manuscript.md) before creating a manuscript workspace or running `paper-start`.
 
 ## Select an operation
 
@@ -72,14 +62,13 @@ Map the request to one operation. Combine operations only when the user asks for
 |---|---|---|
 | initialize research memory | `init` | create missing files only |
 | load context / continue work | `start` | read-only |
-| load evidence-grounded manuscript context | `paper-start` | read-only |
 | formulate question or hypothesis | `frame` | update research records with confirmation |
 | plan/register an experiment | `plan` | create proposed experiment record |
 | record progress or results | `record` | append evidence; update status |
 | close session / handoff | `end` | write journal and refresh CURRENT |
 | correct a bugged result or conclusion | `correct` | preserve old record; link replacement |
 | synthesize stable knowledge | `synthesize` | promote evidence-backed observations |
-| audit paper claim support | `claim-audit` | read-only unless asked to update |
+| audit claim support | `claim-audit` | read-only unless asked to update |
 | check memory/document health | `doctor` | read-only |
 
 ## Operation workflows
@@ -111,21 +100,6 @@ Report:
 - next actions, distinguishing already-decided work from optional suggestions.
 
 Do not present historical interpretation as current fact merely because it appears in a recent journal.
-
-### `paper-start`
-
-Keep this operation read-only. Read [references/manuscript.md](references/manuscript.md), select one manuscript workspace, and load it in this order:
-
-1. Project operational entry and `CURRENT.md`.
-2. The manuscript's `manuscript.yaml` and `context/paper-state.md`.
-3. Its claim-evidence projection and the authoritative project claim records.
-4. Its number registry, then verify headline values against experiment records, active protocols, and raw artifact links.
-5. Limitations, invalidated/superseded warnings, figure/table manifests, and the current LaTeX entry.
-6. The latest manuscript decision, review, or handoff relevant to the requested section.
-
-Report the paper's current thesis, safe claims, claims requiring weaker wording, forbidden or stale claims/numbers, authoritative number paths, affected figures/tables, unresolved evidence gaps, and the next already-decided writing action. Separate optional writing suggestions from evidence-required corrections.
-
-The manuscript context is a projection, never a replacement for project evidence. Do not promote a number because it appears in LaTeX, a draft, or a recent journal. When records conflict, report the conflict and prefer neither until the authoritative evidence relation is resolved. Do not edit prose, tables, figures, or registries in `paper-start` unless the user separately requests a mutation.
 
 ### `frame`
 
@@ -159,7 +133,7 @@ Scaffold new records with `python3 scripts/new_experiment.py <project-root> "<ti
 
 ### `end`
 
-Support experiment, implementation, diagnosis, planning, writing, and literature-review sessions.
+Support experiment, implementation, diagnosis, planning, and literature-review sessions.
 
 1. Inspect contemporaneous scripts, configs, logs, checkpoints, metrics, git state, and output directories before writing the handoff.
 2. For experiment or evaluation sessions, apply the provenance gate from `record`. Add `## Key Configuration` and `## Artifact Index` to the journal. Keep the critical configuration readable; link the resolved full snapshot instead of pasting every field.
@@ -178,7 +152,7 @@ An execution may be `completed` while reproducibility is `incomplete`. Do not ma
 3. Preserve the old values with a visible warning; do not delete them.
 4. Create a corrected experiment/protocol version and link `supersedes` / `superseded_by` in both directions.
 5. Recompute from source artifacts when possible. Do not merely edit headline numbers.
-6. Audit downstream facts, CURRENT, tables, figures, abstracts, and paper claims.
+6. Audit downstream facts, CURRENT, tables, figures, and claims.
 7. Record what remains valid after the correction.
 
 ### `synthesize`
@@ -187,7 +161,7 @@ Promote an item into durable knowledge only when its supporting evidence and pro
 
 ### `claim-audit`
 
-For every intended paper/patent claim, build a claim-evidence matrix containing evidence IDs, protocol, comparison fairness, uncertainty, counterevidence, validity threats, and allowed wording. Classify each claim as `supported`, `partially-supported`, `unsupported`, or `invalidated`. Flag causal language without causal identification. Optionally pre-screen rows with `python3 scripts/jev_doctor.py <project-root>` (see *Optional Jev layers*) and manually review every low-confidence classification; the pre-screen is advisory, never the verdict.
+For every intended claim, build a claim-evidence matrix containing evidence IDs, protocol, comparison fairness, uncertainty, counterevidence, validity threats, and allowed wording. Classify each claim as `supported`, `partially-supported`, `unsupported`, or `invalidated`. Flag causal language without causal identification. Optionally pre-screen rows with `python3 scripts/jev_doctor.py <project-root>` (see *Optional Jev layers*) and manually review every low-confidence classification; the pre-screen is advisory, never the verdict.
 
 ### `doctor`
 

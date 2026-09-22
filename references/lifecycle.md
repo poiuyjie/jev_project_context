@@ -10,7 +10,7 @@
 6. Analyze without overclaiming
 7. Correct and supersede
 8. Synthesize knowledge
-9. Build claims and write
+9. Build claims
 10. Reproduce, transfer, and archive
 
 ## 1. Frame the problem
@@ -79,7 +79,7 @@ bug/protocol flaw
   -> affected metrics/tables
   -> affected observations/facts
   -> affected decisions
-  -> affected figures/claims/manuscript text
+  -> affected figures/claims/reports
 ```
 
 Keep the invalid record visible with a warning. Recompute from source artifacts, assign a corrected ID or protocol version, and link replacements bidirectionally. State which unaffected evidence remains trustworthy.
@@ -88,16 +88,16 @@ Keep the invalid record visible with a warning. Recompute from source artifacts,
 
 Promote only traceable, scoped observations. A result from one split and seed should not become a universal fact. Keep mechanisms in the hypothesis registry until discriminating evidence exists. Periodically consolidate duplicate observations while retaining source links.
 
-## 9. Build claims and write
+## 9. Build claims
 
-Construct the claim-evidence matrix before polishing prose. For each claim, check:
+Construct the claim-evidence matrix. For each claim, check:
 
 - comparison fairness;
 - statistical and practical significance;
 - generalization domain;
 - causal identification;
 - negative evidence and limitations;
-- reproducibility path from manuscript number to raw artifact.
+- reproducibility path from headline number to raw artifact.
 
 Use wording strength that matches support. “Outperforms” requires a comparable baseline; “causes” requires causal evidence; “generalizes” requires held-out domains appropriate to that claim.
 

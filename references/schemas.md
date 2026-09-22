@@ -199,7 +199,7 @@ Use “fact” for durable scoped observations, not mechanisms.
 | C-01 | ... | E1,E4 | same split | E7 | one seed | partial | “suggests”, not “demonstrates” |
 ```
 
-Every headline number in a manuscript should resolve to an evidence record and raw artifact.
+Every headline number should resolve to an evidence record and raw artifact.
 
 ## 8. Session handoff
 

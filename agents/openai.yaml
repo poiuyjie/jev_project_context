@@ -1,4 +1,4 @@
 interface:
   display_name: "Project Context V2"
-  short_description: "Evidence-first research and manuscript context"
-  default_prompt: "Use $project-context-v2 to preserve evidence, resume this research project, or load traceable context for manuscript writing."
+  short_description: "Evidence-first research experiment memory"
+  default_prompt: "Use $project-context-v2 to preserve evidence, resume this research project, or keep long-term experiment records traceable."

@@ -119,7 +119,7 @@ With the key in place (see [TypeSafe/Jev docs](https://docs.typesafe.ai)):
 - `jev_context.py` — task-conditioned context triage for `start`: ranks experiment records, knowledge entries, protocols, and journals against the current task in one batched decision call, and prints a `LOAD / SKIP` manifest under a character budget. Relevance never hides staleness: `SURFACE` validity warnings (invalidated/superseded evidence) are printed even for skipped items.
 - `jev_doctor.py` — semantic pre-screening for `doctor` / `claim-audit` / `synthesize`: provenance recoverability, headline-vs-table consistency, interpretation leaking into observations, and claim-support classification over the controlled vocabulary.
 
-Both are read-only and advisory: findings are triage, never verdicts. Without the key (or on API failure) they print a fallback note and exit 0 — every workflow works fully offline.
+Both are read-only and advisory: findings are triage, never verdicts. Without a key (or on API failure) the scripts print a fallback note and exit 0 — nothing breaks, and every judgment falls back to your agent's main model: the skill's workflows instruct the agent to run the same semantic checks itself and to load context via the fixed reading order. This is a *fallback*, not a *degradation* — quality is backed by the main model (arguably stronger), only cost and latency return to the plain-LLM baseline.
 
 ## Memory layout
 

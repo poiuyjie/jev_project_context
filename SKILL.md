@@ -185,7 +185,7 @@ When `TYPESAFE_API_KEY` is set, run `python3 scripts/jev_doctor.py <project-root
 
 ## Optional Jev layers
 
-Two optional layers are backed by TypeSafe Jev, a non-generative "System One" decision model. Both are opt-in: without `TYPESAFE_API_KEY` in the environment the scripts print a skip/fallback note and exit 0, and every workflow above works unchanged offline.
+Two optional layers are backed by TypeSafe Jev, a non-generative "System One" decision model. Both are opt-in: without `TYPESAFE_API_KEY` in the environment the scripts print a skip/fallback note and exit 0, and every workflow above works unchanged offline — the agent simply performs these judgments itself (the semantic checks inside `doctor`/`claim-audit`/`synthesize`, and the fixed `start` reading order). Treat the Jev layers as a faster, cheaper executor for judgments the agent can already make; they are never a capability gate.
 
 **Context triage (`start`, every session).** `python3 scripts/jev_context.py <project-root> --task "<request>"` ranks candidate memory items (experiment records, knowledge entries, protocols, journals) against the task in one batched call and prints a manifest under a character budget: `ALWAYS` (operational entry + CURRENT.md, never triaged), `LOAD` (read in full), `SKIP` (pointers only), `SURFACE` (validity warnings, printed even for skipped items), `SUMMARY`. Read what it marks `LOAD`; keep `SKIP` as one-line pointers. Relevance never hides a staleness alarm: relay every `SURFACE` line. On `FALLBACK` (no key, API failure), follow the fixed reading order unchanged.
 

@@ -119,7 +119,7 @@ key 就位后（参见 [TypeSafe/Jev 文档](https://docs.typesafe.ai)）：
 - `jev_context.py` — `start` 的任务条件化上下文分诊：一次批量决策调用，把实验记录、知识条目、协议、journal 按当前任务排序，输出字符预算内的 `LOAD / SKIP` 清单。相关性永远不掩盖过期：`SURFACE` 有效性警报（invalidated/superseded）即使对被跳过的条目也会输出。
 - `jev_doctor.py` — `doctor` / `claim-audit` / `synthesize` 的语义预筛：溯源可恢复性、headline 与关键表一致性、解释混入观察、按受控词表做 claim 支持度分类。
 
-两者均只读且仅作建议：输出是分诊线索，不是裁决。无 key（或 API 失败）时打印降级提示并以 0 退出——所有工作流完全离线可用。
+两者均只读且仅作建议：输出是分诊线索，不是裁决。无 key（或 API 失败）时脚本打印回退提示并以 0 退出——没有任何功能损失，所有判断**回退给你的智能体主模型**：skill 的工作流会指示智能体自行完成同样的语义检查、并按固定阅读顺序装载上下文。严格说这是*回退（fallback）*而非*降级（degradation）*——质量由主模型兜底（甚至更强），只是成本与延迟回到普通 LLM 的基线水平。
 
 ## 记忆布局
 

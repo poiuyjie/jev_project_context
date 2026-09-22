@@ -40,36 +40,49 @@ flowchart TB
     classDef gate fill:#FFF7ED,stroke:#F59E0B,stroke-width:1.5px,color:#7C2D12;
 ```
 
-### 审计漏斗与上下文分诊
-
-`doctor` 分层审计，`start` 只装载当前任务需要的内容。两个 Jev 层在未设置 `TYPESAFE_API_KEY` 时自动降级为完全离线可用。
+### Jev 如何审查你的记忆
 
 ```mermaid
-flowchart TB
+flowchart LR
     %%{init: {"flowchart":{"defaultRenderer":"elk"},"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
-    subgraph audit["🩺 doctor · 审计漏斗"]
-        direction LR
-        l1["doctor.py<br/>本地正则 · 免费 · CI 退出码"]:::c1
-        l2["jev_doctor.py<br/>语义预筛 · 可选 Jev"]:::c2
-        l3(["🧠 智能体 / 人工复核<br/>唯一裁决者"]):::c3
-        l1 -->|结构问题| l2
-        l2 -->|标记项| l3
+
+    src["📄 受审记忆<br/>实验记录 · CURRENT.md · claims"]:::c1
+
+    subgraph L1["1️⃣ doctor.py — 本地正则 · 免费"]
+        r1["结构检查<br/>缺失章节 · 过期日期 ·<br/>溯源字段为空"]:::c2
     end
 
-    subgraph triage["🧭 start · 上下文分诊 · 每次会话"]
-        direction LR
-        s1["记忆卡片<br/>实验 · facts · 协议 · journal"]:::c1
-        s2["jev_context.py<br/>按任务相关性打分"]:::c2
-        s3(["LOAD / SKIP 清单<br/>SURFACE 警报永远上报"]):::c3
-        s1 --> s2 --> s3
+    subgraph L2["2️⃣ jev_doctor.py — 一次批量 Jev 调用"]
+        direction TB
+        q1["Noul — 溯源可恢复？"]:::c3
+        q2["Noul — headline 与关键表一致？"]:::c3
+        q3["Noul — 观察未被解释污染？"]:::c3
+        q4["Choice — claim 支持度分类"]:::c3
     end
 
-    audit ~~~ triage
+    src --> L1
+    L1 --> L2
+
+    L2 --> gate{"置信度闸门"}
+    gate -->|"通过 · p ≥ 0.5"| ok(["✅ 静默通过"]):::okc
+    gate -->|"有发现 · 高置信"| warn(["⚠️ SEMANTIC-WARNING<br/>行动前先确认"]):::warnc
+    gate -->|"置信度 < 0.5"| rev(["🔍 SEMANTIC-REVIEW<br/>人工复核队列"]):::revc
 
     classDef c1 fill:#EEF2FF,stroke:#6366F1,stroke-width:1.5px,color:#312E81;
     classDef c2 fill:#FFFFFF,stroke:#6366F1,stroke-width:1.5px,color:#1E1B4B;
-    classDef c3 fill:#FFF1F2,stroke:#F43F5E,stroke-width:2px,color:#881337;
+    classDef c3 fill:#F5F3FF,stroke:#8B5CF6,stroke-width:1.5px,color:#4C1D95;
+    classDef okc fill:#ECFDF5,stroke:#10B981,stroke-width:2px,color:#064E3B;
+    classDef warnc fill:#FFF7ED,stroke:#F59E0B,stroke-width:2px,color:#7C2D12;
+    classDef revc fill:#FFF1F2,stroke:#F43F5E,stroke-width:2px,color:#881337;
 ```
+
+**为什么用决策模型做审查？** 每个审查问题本质都是小的、封闭词表的判断——正是不生成文本的"系统一"模型擅长的形状：
+
+- **一次审计一次批量调用**——所有记录的所有问题打包进同一请求（quickstart 实测仅 425 input tokens），而主模型审查需要逐条通读全部记录。
+- **自带校准置信度，路由免费**——每个答案都带概率分布和置信度，发现自动分流为*静默通过 / 警告 / 人工复核*，无需向 LLM 挤压不确定性。
+- **封闭词表，不会编造发现**——答案被约束在 schema 内（`supported / partially-supported / unsupported / invalidated`），预筛只能标记，不能捏造。
+- **一致、可记录、可调优**——每次运行同一 schema：把 Jev 的结论与你自己的复核并排记录，按项目调阈值。
+- **主模型仍是裁决者**——Jev 只做分诊；所有警告和低置信项都进入复核。无 key 时同样的检查由主模型执行（见上文回退说明）。
 
 ## 操作一览
 

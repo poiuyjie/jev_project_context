@@ -40,36 +40,49 @@ flowchart TB
     classDef gate fill:#FFF7ED,stroke:#F59E0B,stroke-width:1.5px,color:#7C2D12;
 ```
 
-### The audit funnel and context triage
-
-`doctor` audits in layers, and `start` loads only what the task needs. Both optional Jev layers degrade gracefully to fully offline behavior when `TYPESAFE_API_KEY` is unset.
+### How Jev audits your memory
 
 ```mermaid
-flowchart TB
+flowchart LR
     %%{init: {"flowchart":{"defaultRenderer":"elk"},"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
-    subgraph audit["🩺 doctor — audit funnel"]
-        direction LR
-        l1["doctor.py<br/>local regex · free · CI exit code"]:::c1
-        l2["jev_doctor.py<br/>semantic pre-screen · optional Jev"]:::c2
-        l3(["🧠 agent / human review<br/>the only authority"]):::c3
-        l1 -->|structural findings| l2
-        l2 -->|flagged findings| l3
+
+    src["📄 memory under audit<br/>experiment records · CURRENT.md · claims"]:::c1
+
+    subgraph L1["1️⃣ doctor.py — local regex · free"]
+        r1["structural checks<br/>missing sections · stale dates ·<br/>empty provenance fields"]:::c2
     end
 
-    subgraph triage["🧭 start — context triage · every session"]
-        direction LR
-        s1["memory cards<br/>experiments · facts · protocols · journals"]:::c1
-        s2["jev_context.py<br/>task-conditioned relevance scoring"]:::c2
-        s3(["LOAD / SKIP manifest<br/>SURFACE warnings always relayed"]):::c3
-        s1 --> s2 --> s3
+    subgraph L2["2️⃣ jev_doctor.py — one batched Jev call"]
+        direction TB
+        q1["Noul — provenance recoverable?"]:::c3
+        q2["Noul — headline matches key table?"]:::c3
+        q3["Noul — observations free of interpretation?"]:::c3
+        q4["Choice — claim support status"]:::c3
     end
 
-    audit ~~~ triage
+    src --> L1
+    L1 --> L2
+
+    L2 --> gate{"confidence gate"}
+    gate -->|"passes · p ≥ 0.5"| ok(["✅ silent pass"]):::okc
+    gate -->|"finding · high confidence"| warn(["⚠️ SEMANTIC-WARNING<br/>confirm before acting"]):::warnc
+    gate -->|"confidence < 0.5"| rev(["🔍 SEMANTIC-REVIEW<br/>manual review queue"]):::revc
 
     classDef c1 fill:#EEF2FF,stroke:#6366F1,stroke-width:1.5px,color:#312E81;
     classDef c2 fill:#FFFFFF,stroke:#6366F1,stroke-width:1.5px,color:#1E1B4B;
-    classDef c3 fill:#FFF1F2,stroke:#F43F5E,stroke-width:2px,color:#881337;
+    classDef c3 fill:#F5F3FF,stroke:#8B5CF6,stroke-width:1.5px,color:#4C1D95;
+    classDef okc fill:#ECFDF5,stroke:#10B981,stroke-width:2px,color:#064E3B;
+    classDef warnc fill:#FFF7ED,stroke:#F59E0B,stroke-width:2px,color:#7C2D12;
+    classDef revc fill:#FFF1F2,stroke:#F43F5E,stroke-width:2px,color:#881337;
 ```
+
+**Why a decision model for audits?** Every audit question is a small, closed-vocabulary judgment — exactly the shape a non-generative "System One" model is built for:
+
+- **One batched call per audit** — all questions across all records go out in a single request (the quickstart triage measured 425 input tokens), instead of the main model re-reading every record in full.
+- **Calibrated confidence, free routing** — every answer carries a probability distribution and a confidence score, so findings split automatically into *silent pass / warning / manual review*, with no prompt-engineering to squeeze uncertainty out of an LLM.
+- **Closed vocabulary, no invented findings** — answers are constrained to the schema (`supported / partially-supported / unsupported / invalidated`), so the pre-screen can only flag, never fabricate.
+- **Consistent, loggable, tunable** — the same schema runs every time: log Jev's verdicts next to your own reviews and tune thresholds per project.
+- **The main model remains the judge** — Jev only triages; every warning and every low-confidence item routes to your review. Without a key, the same checks run on the main model (fallback above).
 
 ## Operations
 

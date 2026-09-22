@@ -92,7 +92,10 @@ flowchart TB
 
 ```bash
 # 通过 skills CLI 安装（项目级；加 -g 全局）
+# 交互模式：会询问安装到哪个智能体
 npx skills add poiuyjie/jev_project_context
+# 非交互（CI、脚本）：显式指定目标智能体
+npx skills add poiuyjie/jev_project_context --agent claude-code -y
 
 # 或直接把仓库克隆进智能体的 skills 目录
 git clone https://github.com/poiuyjie/jev_project_context ~/.agents/skills/project-context-v2

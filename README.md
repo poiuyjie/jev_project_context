@@ -92,7 +92,10 @@ Requires Python ≥ 3.10 for the scripts (zero third-party dependencies).
 
 ```bash
 # via the skills CLI (project-level; add -g for global)
+# interactive: you will be asked which of your agents to install to
 npx skills add poiuyjie/jev_project_context
+# non-interactive (CI, scripts): name the target agent explicitly
+npx skills add poiuyjie/jev_project_context --agent claude-code -y
 
 # or copy the folder into your agent's skills directory
 git clone https://github.com/poiuyjie/jev_project_context ~/.agents/skills/project-context-v2

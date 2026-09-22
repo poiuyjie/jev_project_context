@@ -46,26 +46,16 @@ flowchart TB
 flowchart TB
     %%{init: {"flowchart":{"defaultRenderer":"elk"},"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
 
-    src["📄 受审记忆<br/>实验记录 · CURRENT · claims"]:::c1 --> L1
+    src["📄 受审记忆 — 实验记录 · CURRENT.md · claims"]:::c1
+    r1["1️⃣ doctor.py ｜ 本地正则 · 免费<br/>结构检查：缺节 · 过期 · 溯源字段为空"]:::c2
+    r2["2️⃣ jev_doctor.py ｜ 一次批量 Jev 调用<br/>溯源可恢复？ · headline 对表？ · 观察纯描述？ · claim 支持度"]:::c3
+    gate{"置信度闸门"}
+    ok(["✅ 静默通过（p ≥ 0.5）"]):::okc
+    warn(["⚠️ 警告 — 高置信发现，先确认再行动"]):::warnc
+    rev(["🔍 人工复核 — confidence < 0.5"]):::revc
 
-    subgraph L1["1️⃣ doctor.py — 本地正则 · 免费"]
-        r1["结构检查<br/>缺节 · 过期 · 溯源字段为空"]:::c2
-    end
-
-    L1 --> L2
-
-    subgraph L2["2️⃣ jev_doctor.py — 一次批量 Jev 调用"]
-        direction LR
-        q1["Noul<br/>溯源<br/>可恢复？"]:::c3
-        q2["Noul<br/>headline<br/>对表？"]:::c3
-        q3["Noul<br/>观察纯描述？"]:::c3
-        q4["Choice<br/>claim<br/>支持度"]:::c3
-    end
-
-    L2 --> gate{"置信度闸门"}
-    gate -->|p ≥ 0.5| ok(["✅ 静默通过"]):::okc
-    gate -->|高置信发现| warn(["⚠️ 警告<br/>先确认再行动"]):::warnc
-    gate -->|低置信| rev(["🔍 人工复核队列<br/>confidence < 0.5"]):::revc
+    src --> r1 --> r2 --> gate
+    gate --> ok & warn & rev
 
     classDef c1 fill:#EEF2FF,stroke:#6366F1,stroke-width:1.5px,color:#312E81;
     classDef c2 fill:#FFFFFF,stroke:#6366F1,stroke-width:1.5px,color:#1E1B4B;

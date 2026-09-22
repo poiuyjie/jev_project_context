@@ -46,26 +46,16 @@ flowchart TB
 flowchart TB
     %%{init: {"flowchart":{"defaultRenderer":"elk"},"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
 
-    src["📄 memory under audit<br/>records · CURRENT.md · claims"]:::c1 --> L1
+    src["📄 Memory under audit — records · CURRENT.md · claims"]:::c1
+    r1["1️⃣ doctor.py ｜ local regex · free<br/>structural: missing sections · stale · empty provenance"]:::c2
+    r2["2️⃣ jev_doctor.py ｜ one batched Jev call<br/>provenance recoverable? · headline matches table? · observations clean? · claim support"]:::c3
+    gate{"confidence gate"}
+    ok(["✅ silent pass (p ≥ 0.5)"]):::okc
+    warn(["⚠️ warning — high-confidence finding, confirm first"]):::warnc
+    rev(["🔍 manual review — confidence < 0.5"]):::revc
 
-    subgraph L1["1️⃣ doctor.py — local regex · free"]
-        r1["structural checks<br/>missing sections · stale · empty provenance"]:::c2
-    end
-
-    L1 --> L2
-
-    subgraph L2["2️⃣ jev_doctor.py — one batched Jev call"]
-        direction LR
-        q1["Noul<br/>provenance<br/>recoverable?"]:::c3
-        q2["Noul<br/>headline matches<br/>key table?"]:::c3
-        q3["Noul<br/>observations free of<br/>interpretation?"]:::c3
-        q4["Choice<br/>claim support<br/>status"]:::c3
-    end
-
-    L2 --> gate{"confidence gate"}
-    gate -->|p ≥ 0.5| ok(["✅ silent pass"]):::okc
-    gate -->|finding · high conf| warn(["⚠️ warning<br/>confirm before acting"]):::warnc
-    gate -->|low conf| rev(["🔍 review queue<br/>confidence < 0.5"]):::revc
+    src --> r1 --> r2 --> gate
+    gate --> ok & warn & rev
 
     classDef c1 fill:#EEF2FF,stroke:#6366F1,stroke-width:1.5px,color:#312E81;
     classDef c2 fill:#FFFFFF,stroke:#6366F1,stroke-width:1.5px,color:#1E1B4B;

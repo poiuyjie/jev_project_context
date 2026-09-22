@@ -10,30 +10,35 @@ Research projects rarely die because results are lost — they die because their
 
 ```mermaid
 flowchart TB
-    init(["init — adopt once"]) --> frame
+    %%{init: {"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
+    init(["✦ init — adopt once"]):::seed --> frame
 
-    subgraph cycle ["Research loop"]
-        direction LR
-        frame["frame — question, hypotheses, falsifiers"]
-        plan["plan — stable experiment ID, frozen protocol"]
-        record["record — provenance gate, evidence before interpretation"]
-        close["End — journal handoff, refresh CURRENT"]
-        frame --> plan --> record --> close
+    subgraph loop["🔬 Research loop"]
+        frame["🎯 frame<br/>question · hypotheses · falsifiers"]:::op
+        plan["📋 plan<br/>stable experiment ID · frozen protocol"]:::op
+        record["🧾 record<br/>provenance gate · evidence before interpretation"]:::op
+        endS(["🏁 End — journal handoff"]):::op
+        frame --> plan --> record --> endS
     end
 
-    close --> start(["start — resume next session"])
-    start --> frame
-    close --> synthesize["synthesize — promote traceable observations to facts"]
-    close -.-> correct["correct — freeze, invalidate, supersede"]
-    correct -.-> record
-    close ==> doctor["doctor — structural + optional semantic audit"]
+    startS(["▶ start — resume next session"]):::seed
+    endS --> startS
+    startS -->|new session| frame
+    endS --> syn["📦 synthesize<br/>promote traceable observations to facts"]:::read
 
-    classDef gate fill:#e8f0fe,stroke:#4285f4,color:#174ea6;
-    classDef write fill:#fef7e0,stroke:#f9ab00,color:#7d5600;
-    classDef read fill:#e6f4ea,stroke:#34a853,color:#0d652d;
-    class init,frame,plan,record,close write;
-    class start,synthesize read;
-    class correct,doctor gate;
+    subgraph guards["⚠️ Available anytime"]
+        correct["🧊 correct<br/>freeze · invalidate · supersede"]:::gate
+        doctor["🩺 doctor<br/>read-only structural + semantic audit"]:::gate
+    end
+
+    endS -. bug found .-> correct
+    correct -.-> record
+    endS == close-out ==> doctor
+
+    classDef seed fill:#EEF2FF,stroke:#6366F1,stroke-width:2px,color:#312E81;
+    classDef op fill:#FFFFFF,stroke:#6366F1,stroke-width:1.5px,color:#1E1B4B;
+    classDef read fill:#ECFDF5,stroke:#10B981,stroke-width:1.5px,color:#064E3B;
+    classDef gate fill:#FFF7ED,stroke:#F59E0B,stroke-width:1.5px,color:#7C2D12;
 ```
 
 ### The audit funnel and context triage
@@ -41,24 +46,31 @@ flowchart TB
 `doctor` audits in layers, and `start` loads only what the task needs. Both optional Jev layers degrade gracefully to fully offline behavior when `TYPESAFE_API_KEY` is unset.
 
 ```mermaid
-flowchart LR
-    subgraph audit ["doctor · audit funnel"]
-        direction TB
-        L1["doctor.py — local regex, free, exit code for CI"] --> L2["jev_doctor.py — semantic pre-screen (optional)"]
-        L2 -->|"low confidence"| L3["Agent / human review — the only authority"]
-        L2 -->|"high-confidence warning"| L3
+flowchart TB
+    %%{init: {"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
+    subgraph audit["🩺 doctor — audit funnel"]
+        direction LR
+        l1["doctor.py<br/>local regex · free · CI exit code"]:::c1
+        l2["jev_doctor.py<br/>semantic pre-screen · optional Jev"]:::c2
+        l3(["🧠 agent / human review<br/>the only authority"]):::c3
+        l1 -->|structural findings| l2
+        l2 -->|low confidence| l3
+        l2 -->|high-confidence warning| l3
     end
 
-    subgraph ctx ["start · context triage (every session)"]
-        direction TB
-        S1["jev_context.py — rank memory items against the task"] --> S2["manifest: ALWAYS / LOAD / SKIP / SURFACE"]
-        S2 --> S3["agent reads LOAD only; SURFACE warnings always relayed"]
+    subgraph triage["🧭 start — context triage · every session"]
+        direction LR
+        s1["memory cards<br/>experiments · facts · protocols · journals"]:::c1
+        s2["jev_context.py<br/>task-conditioned relevance scoring"]:::c2
+        s3(["LOAD / SKIP manifest<br/>SURFACE warnings always relayed"]):::c3
+        s1 --> s2 --> s3
     end
 
-    classDef layer fill:#e8f0fe,stroke:#4285f4,color:#174ea6;
-    classDef brain fill:#fce8e6,stroke:#ea4335,color:#a50e0e;
-    class L1,L2,S1,S2,S3 layer;
-    class L3 brain;
+    audit ~~~ triage
+
+    classDef c1 fill:#EEF2FF,stroke:#6366F1,stroke-width:1.5px,color:#312E81;
+    classDef c2 fill:#FFFFFF,stroke:#6366F1,stroke-width:1.5px,color:#1E1B4B;
+    classDef c3 fill:#FFF1F2,stroke:#F43F5E,stroke-width:2px,color:#881337;
 ```
 
 ## Operations

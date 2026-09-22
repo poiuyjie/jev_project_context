@@ -10,30 +10,35 @@
 
 ```mermaid
 flowchart TB
-    init(["init · 一次性接入"]) --> frame
+    %%{init: {"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
+    init(["✦ init · 一次性接入"]):::seed --> frame
 
-    subgraph cycle ["科研循环"]
-        direction LR
-        frame["frame — 研究问题、假设、证伪条件"]
-        plan["plan — 稳定实验 ID、冻结协议"]
-        record["record — 溯源门、先证据后解释"]
-        close["End — journal 交接、刷新 CURRENT"]
-        frame --> plan --> record --> close
+    subgraph loop["🔬 科研循环"]
+        frame["🎯 frame<br/>研究问题 · 假设 · 证伪条件"]:::op
+        plan["📋 plan<br/>稳定实验 ID · 冻结协议"]:::op
+        record["🧾 record<br/>溯源门 · 先证据后解释"]:::op
+        endS(["🏁 End · journal 交接"]):::op
+        frame --> plan --> record --> endS
     end
 
-    close --> start(["start · 下次会话恢复"])
-    start --> frame
-    close --> synthesize["synthesize — 晋升可追溯的观察为 facts"]
-    close -.-> correct["correct — 冻结、作废、替代"]
-    correct -.-> record
-    close ==> doctor["doctor — 结构审计 + 可选语义审计"]
+    startS(["▶ start · 下次会话恢复"]):::seed
+    endS --> startS
+    startS -->|新会话| frame
+    endS --> syn["📦 synthesize<br/>晋升可追溯观察为 facts"]:::read
 
-    classDef gate fill:#e8f0fe,stroke:#4285f4,color:#174ea6;
-    classDef write fill:#fef7e0,stroke:#f9ab00,color:#7d5600;
-    classDef read fill:#e6f4ea,stroke:#34a853,color:#0d652d;
-    class init,frame,plan,record,close write;
-    class start,synthesize read;
-    class correct,doctor gate;
+    subgraph guards["⚠️ 随叫随到"]
+        correct["🧊 correct<br/>冻结 · 作废 · 替代"]:::gate
+        doctor["🩺 doctor<br/>只读结构 + 语义审计"]:::gate
+    end
+
+    endS -. 发现 bug .-> correct
+    correct -.-> record
+    endS == 收尾必跑 ==> doctor
+
+    classDef seed fill:#EEF2FF,stroke:#6366F1,stroke-width:2px,color:#312E81;
+    classDef op fill:#FFFFFF,stroke:#6366F1,stroke-width:1.5px,color:#1E1B4B;
+    classDef read fill:#ECFDF5,stroke:#10B981,stroke-width:1.5px,color:#064E3B;
+    classDef gate fill:#FFF7ED,stroke:#F59E0B,stroke-width:1.5px,color:#7C2D12;
 ```
 
 ### 审计漏斗与上下文分诊
@@ -41,24 +46,31 @@ flowchart TB
 `doctor` 分层审计，`start` 只装载当前任务需要的内容。两个 Jev 层在未设置 `TYPESAFE_API_KEY` 时自动降级为完全离线可用。
 
 ```mermaid
-flowchart LR
-    subgraph audit ["doctor · 审计漏斗"]
-        direction TB
-        L1["doctor.py — 本地正则，免费，CI 退出码"] --> L2["jev_doctor.py — 语义预筛（可选）"]
-        L2 -->|"低置信度"| L3["智能体 / 人工复核 — 唯一裁决者"]
-        L2 -->|"高置信度警告"| L3
+flowchart TB
+    %%{init: {"theme":"base","themeVariables":{"fontFamily":"Inter, ui-sans-serif, system-ui, sans-serif","fontSize":"14px","clusterBkg":"#F8FAFC","clusterBorder":"#CBD5E1","lineColor":"#94A3B8","edgeLabelBackground":"#FFFFFF"}}}%%
+    subgraph audit["🩺 doctor · 审计漏斗"]
+        direction LR
+        l1["doctor.py<br/>本地正则 · 免费 · CI 退出码"]:::c1
+        l2["jev_doctor.py<br/>语义预筛 · 可选 Jev"]:::c2
+        l3(["🧠 智能体 / 人工复核<br/>唯一裁决者"]):::c3
+        l1 -->|结构问题| l2
+        l2 -->|低置信度| l3
+        l2 -->|高置信度警告| l3
     end
 
-    subgraph ctx ["start · 上下文分诊（每次会话）"]
-        direction TB
-        S1["jev_context.py — 按当前任务为记忆条目排序"] --> S2["清单：ALWAYS / LOAD / SKIP / SURFACE"]
-        S2 --> S3["智能体只读 LOAD；SURFACE 警报永远上报"]
+    subgraph triage["🧭 start · 上下文分诊 · 每次会话"]
+        direction LR
+        s1["记忆卡片<br/>实验 · facts · 协议 · journal"]:::c1
+        s2["jev_context.py<br/>按任务相关性打分"]:::c2
+        s3(["LOAD / SKIP 清单<br/>SURFACE 警报永远上报"]):::c3
+        s1 --> s2 --> s3
     end
 
-    classDef layer fill:#e8f0fe,stroke:#4285f4,color:#174ea6;
-    classDef brain fill:#fce8e6,stroke:#ea4335,color:#a50e0e;
-    class L1,L2,S1,S2,S3 layer;
-    class L3 brain;
+    audit ~~~ triage
+
+    classDef c1 fill:#EEF2FF,stroke:#6366F1,stroke-width:1.5px,color:#312E81;
+    classDef c2 fill:#FFFFFF,stroke:#6366F1,stroke-width:1.5px,color:#1E1B4B;
+    classDef c3 fill:#FFF1F2,stroke:#F43F5E,stroke-width:2px,color:#881337;
 ```
 
 ## 操作一览
